@@ -354,7 +354,7 @@ def make_xlsx(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlit
 
 def change_readme():
     print("Updating README started...")
-    tmp_dir = "./templates/README.md"
+    tmp_dir = "./templates/README.txt"
     readme = readtemplate(tmp_dir)
     d = datetime.now()
     current_time = d.strftime('%d, %b %Y')
