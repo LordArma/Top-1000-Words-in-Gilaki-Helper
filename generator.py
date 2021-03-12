@@ -403,7 +403,6 @@ def push_release():
 
 if __name__ == '__main__':
     normalize()
-    '''
     make_csv()
     make_json()
     update_docs()
@@ -416,4 +415,3 @@ if __name__ == '__main__':
     make_xlsx()
     change_readme()
     push_release()
-    '''
