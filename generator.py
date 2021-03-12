@@ -23,7 +23,7 @@ start_range = 1
 end_range = 1001
 
 
-def normalize():
+def normalize(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     try:
         conn = sqlite3.connect(db_dir)
         cursor = conn.cursor()
@@ -46,6 +46,38 @@ def normalize():
         if (conn):
             conn.close()
             print("The SQLite connection is closed.")
+
+    print("Sorting database started...")
+    copyfile("./templates/database.db", path)
+    try:
+        conn = sqlite3.connect(db_dir)
+        cursor = conn.cursor()
+
+        sqlite_select_query = "SELECT * from tbl_words order by glk_word"
+        cursor.execute(sqlite_select_query)
+        records = cursor.fetchall()
+
+        id = 0
+        conn2 = sqlite3.connect(path)
+        for row in records:
+            id += 1
+
+            cursor2 = conn2.cursor()
+            sqlite_insert_query = f"""INSERT INTO tbl_words
+                                      (id, glk_word, glk_example, fa_word, fa_example) 
+                                       VALUES 
+                                      ({id}, '{row[1]}', '{row[2]}', '{row[3]}', '{row[4]}')"""
+
+            count = cursor2.execute(sqlite_insert_query)
+            conn2.commit()
+        cursor.close()
+
+    except sqlite3.Error as error:
+        print("Failed to read data from sqlite table", error)
+    finally:
+        if (conn):
+            conn.close()
+            print("Database sorted Successfully.")
 
 
 def make_csv():
@@ -371,6 +403,7 @@ def push_release():
 
 if __name__ == '__main__':
     normalize()
+    '''
     make_csv()
     make_json()
     update_docs()
@@ -383,3 +416,4 @@ if __name__ == '__main__':
     make_xlsx()
     change_readme()
     push_release()
+    '''
