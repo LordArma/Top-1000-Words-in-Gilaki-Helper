@@ -23,6 +23,42 @@ start_range = 1
 end_range = 1001
 
 
+def init():
+    if not os.path.exists(release_dir):
+        os.makedirs(release_dir)
+
+    if not os.path.exists(release_dir + '/CSV'):
+        os.makedirs(release_dir + '/CSV')
+
+    if not os.path.exists(release_dir + '/docs'):
+        os.makedirs(release_dir + '/docs')
+
+    if not os.path.exists(release_dir + '/Excel'):
+        os.makedirs(release_dir + '/Excel')
+
+    if not os.path.exists(release_dir + '/Flash Card'):
+        os.makedirs(release_dir + '/Flash Card')
+
+    if not os.path.exists(release_dir + '/JSON'):
+        os.makedirs(release_dir + '/JSON')
+
+    if not os.path.exists(release_dir + '/PDF'):
+        os.makedirs(release_dir + '/PDF')
+
+    if not os.path.exists(release_dir + '/SQLite'):
+        os.makedirs(release_dir + '/SQLite')
+
+    if not os.path.exists(release_dir + '/Word'):
+        os.makedirs(release_dir + '/Word')
+
+    if not os.path.exists(release_dir + '/XML'):
+        os.makedirs(release_dir + '/XML')
+
+    copyfile("./templates/favicon.png", release_dir + "/docs/favicon.png")
+    copyfile("./templates/index.html",  release_dir + "/docs/index.html")
+    copyfile("./templates/LICENSE",  release_dir + "/LICENSE")
+
+
 def normalize(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     try:
         conn = sqlite3.connect(db_dir)
@@ -61,12 +97,19 @@ def normalize(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlit
         conn2 = sqlite3.connect(path)
         for row in records:
             id += 1
-
             cursor2 = conn2.cursor()
+            r1 = row[1]
+            r2 = row[2]
+            r3 = row[3]
+            r4 = row[4]
+            r1 = r1.replace("'", "ٰ")
+            r2 = r2.replace("'", "ٰ")
+            r3 = r3.replace("'", "ٰ")
+            r4 = r4.replace("'", "ٰ")
             sqlite_insert_query = f"""INSERT INTO tbl_words
                                       (id, glk_word, glk_example, fa_word, fa_example) 
                                        VALUES 
-                                      ({id}, '{row[1]}', '{row[2]}', '{row[3]}', '{row[4]}')"""
+                                      ({id}, "{r1}", "{r2}", "{r3}", "{r4}")"""
 
             count = cursor2.execute(sqlite_insert_query)
             conn2.commit()
@@ -402,6 +445,7 @@ def push_release():
 
 
 if __name__ == '__main__':
+    init()
     normalize()
     make_csv()
     make_json()
@@ -415,3 +459,4 @@ if __name__ == '__main__':
     make_xlsx()
     change_readme()
     push_release()
+
