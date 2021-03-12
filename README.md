@@ -1,1 +1,1 @@
-# Top-1000-Words-in-Gilaki-Helper
+# Top 1000 Words in Gilaki Helper
