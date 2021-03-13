@@ -54,7 +54,7 @@ def init():
     copyfile("./templates/LICENSE",  RELEASE_DIR + "/LICENSE")
 
 
-def normalize(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     try:
         conn = sqlite3.connect()
         cursor = conn.cursor()
@@ -74,7 +74,7 @@ def normalize(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlit
     except sqlite3.Error as error:
         print("Failed to stripe rows.", error)
     finally:
-        if (conn):
+        if conn:
             conn.close()
             print("The SQLite connection is closed.")
 
@@ -88,10 +88,10 @@ def normalize(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlit
         cursor.execute(sqlite_select_query)
         records = cursor.fetchall()
 
-        id = 0
+        i = 0
         conn2 = sqlite3.connect(path)
         for row in records:
-            id += 1
+            i += 1
             cursor2 = conn2.cursor()
             r1 = row[1]
             r2 = row[2]
@@ -104,7 +104,7 @@ def normalize(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlit
             sqlite_insert_query = f"""INSERT INTO tbl_words
                                       (id, glk_word, glk_example, fa_word, fa_example) 
                                        VALUES 
-                                      ({id}, "{r1}", "{r2}", "{r3}", "{r4}")"""
+                                      ({i}, "{r1}", "{r2}", "{r3}", "{r4}")"""
 
             count = cursor2.execute(sqlite_insert_query)
             conn2.commit()
@@ -113,7 +113,7 @@ def normalize(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlit
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
     finally:
-        if (conn):
+        if conn:
             conn.close()
             print("Database sorted Successfully.")
 
@@ -151,7 +151,8 @@ def make_json():
 
 def update_docs():
     print("Updating docs...")
-    copyfile(RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.min.json", RELEASE_DIR + "/docs/Top 1000 Words in Gilaki.min.json")
+    copyfile(RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.min.json", RELEASE_DIR + "/docs/Top 1000 Words in "
+                                                                                    "Gilaki.min.json")
     print("docs updated Successfully.")
 
 
@@ -173,12 +174,12 @@ def make_xml():
     os.remove(tmp_output_dir)
 
 
-def readtemplate(path : str) -> str:
+def readtemplate(path: str) -> str:
     f = open(f"{path}", "r")
     return f.read()
 
 
-def readdb(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+def readdb(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     print("Making HTML flashcards started...")
 
     word = readtemplate("./templates/word.html")
@@ -223,7 +224,7 @@ def readdb(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite")
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
     finally:
-        if (conn):
+        if conn:
             conn.close()
             print("HTML flashcards made Successfully.")
 
@@ -261,6 +262,7 @@ def createflash(name, html):
     f.write(html)
     f.close()
 
+
 def createinfo(name, text):
     f = open(f"TEMP/{name}", "w")
     f.write(text)
@@ -292,7 +294,8 @@ def make_gif():
     print("Making GIF flashcards started...")
 
     def makegif(num):
-        os.system(f'convert -delay 200 -loop 0 ./TEMP/{num}-word.jpg ./TEMP/{num}-meaning.jpg ./TEMP/{num}-full.jpg ./TEMP/{num}-animation.gif')
+        os.system(f'convert -delay 200 -loop 0 ./TEMP/{num}-word.jpg ./TEMP/{num}-meaning.jpg ./TEMP/{num}-full.jpg '
+                  f'./TEMP/{num}-animation.gif')
 
     for i in range(START_RANGE, END_RANGE, 1):
         makegif(i)
@@ -311,7 +314,7 @@ def make_gif():
             os.remove(file)
 
 
-def make_docx(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+def make_docx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     print("Making DOCX started...")
 
     document = Document("./templates/database.docx")
@@ -381,7 +384,7 @@ def make_docx(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlit
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
     finally:
-        if (conn):
+        if conn:
             conn.close()
             print("DOCX made Successfully.")
 
@@ -395,7 +398,7 @@ def make_pdf():
     print("PDF made Successfully.")
 
 
-def make_xlsx(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+def make_xlsx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     print("Making Excel started...")
     sheet = pe.get_sheet(file_name="./templates/database.xlsx")
 
@@ -418,7 +421,7 @@ def make_xlsx(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlit
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
     finally:
-        if (conn):
+        if conn:
             conn.close()
             print("XLSX made Successfully.")
 
@@ -455,4 +458,3 @@ if __name__ == '__main__':
     make_xlsx()
     change_readme()
     push_release()
-
