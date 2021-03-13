@@ -247,7 +247,8 @@ def makejpg(typ):
             browser = await launch(headless=True, options={'args': ['--no-sandbox']})
             page = await browser.newPage()
             await page.setViewport({'width': 600, 'height': 600})
-            await page.goto(f"file:///home/arma/PycharmProjects/top-1000-words-in-gilaki-helper/TEMP/{i}-{typ}.html")
+            p = os.path.abspath(f"TEMP/{i}-{typ}.html")
+            await page.goto(f"file://{p}")
             await page.screenshot({'path': f"TEMP/{i}-{typ}.jpg"})
             await browser.close()
 
