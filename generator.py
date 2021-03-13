@@ -56,7 +56,7 @@ def init():
 
 def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     try:
-        conn = sqlite3.connect()
+        conn = sqlite3.connect(DB_DIR)
         cursor = conn.cursor()
         print("Connected to SQLite successfully .")
         print("Normalization started...")
