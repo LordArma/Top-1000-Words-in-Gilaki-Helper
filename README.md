@@ -1,7 +1,7 @@
 # Top 1000 Words in Gilaki Helper
 If you want to fix something in [Top 1000 Words in Gilaki](https://github.com/LordArma/Top-1000-Words-in-Gilaki) or create a list with another accent of Gilaki language you can use this script.
-<br>
-Also people with other languages can create their own "Top N words".
+<br><br>
+Also people with other languages can create their own "Top N words" list.
 
 ## Requirements
 * GNU/Linux (Ubunutu & etc)
