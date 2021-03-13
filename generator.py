@@ -74,7 +74,7 @@ def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
     except sqlite3.Error as error:
         print("Failed to stripe rows.", error)
     finally:
-        if conn:
+        if (conn):
             conn.close()
             print("The SQLite connection is closed.")
 
@@ -113,7 +113,7 @@ def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
     finally:
-        if conn:
+        if (conn):
             conn.close()
             print("Database sorted Successfully.")
 
@@ -224,7 +224,7 @@ def readdb(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
     finally:
-        if conn:
+        if (conn):
             conn.close()
             print("HTML flashcards made Successfully.")
 
@@ -384,7 +384,7 @@ def make_docx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
     finally:
-        if conn:
+        if (conn):
             conn.close()
             print("DOCX made Successfully.")
 
@@ -421,7 +421,7 @@ def make_xlsx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
     finally:
-        if conn:
+        if (conn):
             conn.close()
             print("XLSX made Successfully.")
 
