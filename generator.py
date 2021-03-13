@@ -15,53 +15,48 @@ from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_DIRECTION, WD_TABLE_ALIGNMENT
 import pyexcel as pe
-
-
-db_dir = 'words.db'
-release_dir = "./Top-1000-Words-in-Gilaki"
-start_range = 1
-end_range = 1001
+from config import *
 
 
 def init():
-    if not os.path.exists(release_dir):
-        os.makedirs(release_dir)
+    if not os.path.exists(RELEASE_DIR):
+        os.makedirs(RELEASE_DIR)
 
-    if not os.path.exists(release_dir + '/CSV'):
-        os.makedirs(release_dir + '/CSV')
+    if not os.path.exists(RELEASE_DIR + '/CSV'):
+        os.makedirs(RELEASE_DIR + '/CSV')
 
-    if not os.path.exists(release_dir + '/docs'):
-        os.makedirs(release_dir + '/docs')
+    if not os.path.exists(RELEASE_DIR + '/docs'):
+        os.makedirs(RELEASE_DIR + '/docs')
 
-    if not os.path.exists(release_dir + '/Excel'):
-        os.makedirs(release_dir + '/Excel')
+    if not os.path.exists(RELEASE_DIR + '/Excel'):
+        os.makedirs(RELEASE_DIR + '/Excel')
 
-    if not os.path.exists(release_dir + '/Flash Card'):
-        os.makedirs(release_dir + '/Flash Card')
+    if not os.path.exists(RELEASE_DIR + '/Flash Card'):
+        os.makedirs(RELEASE_DIR + '/Flash Card')
 
-    if not os.path.exists(release_dir + '/JSON'):
-        os.makedirs(release_dir + '/JSON')
+    if not os.path.exists(RELEASE_DIR + '/JSON'):
+        os.makedirs(RELEASE_DIR + '/JSON')
 
-    if not os.path.exists(release_dir + '/PDF'):
-        os.makedirs(release_dir + '/PDF')
+    if not os.path.exists(RELEASE_DIR + '/PDF'):
+        os.makedirs(RELEASE_DIR + '/PDF')
 
-    if not os.path.exists(release_dir + '/SQLite'):
-        os.makedirs(release_dir + '/SQLite')
+    if not os.path.exists(RELEASE_DIR + '/SQLite'):
+        os.makedirs(RELEASE_DIR + '/SQLite')
 
-    if not os.path.exists(release_dir + '/Word'):
-        os.makedirs(release_dir + '/Word')
+    if not os.path.exists(RELEASE_DIR + '/Word'):
+        os.makedirs(RELEASE_DIR + '/Word')
 
-    if not os.path.exists(release_dir + '/XML'):
-        os.makedirs(release_dir + '/XML')
+    if not os.path.exists(RELEASE_DIR + '/XML'):
+        os.makedirs(RELEASE_DIR + '/XML')
 
-    copyfile("./templates/favicon.png", release_dir + "/docs/favicon.png")
-    copyfile("./templates/index.html",  release_dir + "/docs/index.html")
-    copyfile("./templates/LICENSE",  release_dir + "/LICENSE")
+    copyfile("./templates/favicon.png", RELEASE_DIR + "/docs/favicon.png")
+    copyfile("./templates/index.html",  RELEASE_DIR + "/docs/index.html")
+    copyfile("./templates/LICENSE",  RELEASE_DIR + "/LICENSE")
 
 
-def normalize(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+def normalize(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     try:
-        conn = sqlite3.connect(db_dir)
+        conn = sqlite3.connect()
         cursor = conn.cursor()
         print("Connected to SQLite successfully .")
         print("Normalization started...")
@@ -73,7 +68,7 @@ def normalize(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlit
         cursor.close()
 
         print("Releasing SQLite...")
-        copyfile(db_dir, release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlite")
+        copyfile(DB_DIR, RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite")
         print("SQLite Released Successfully.")
 
     except sqlite3.Error as error:
@@ -86,7 +81,7 @@ def normalize(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlit
     print("Sorting database started...")
     copyfile("./templates/database.db", path)
     try:
-        conn = sqlite3.connect(db_dir)
+        conn = sqlite3.connect(DB_DIR)
         cursor = conn.cursor()
 
         sqlite_select_query = "SELECT * from tbl_words order by glk_word"
@@ -125,8 +120,8 @@ def normalize(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlit
 
 def make_csv():
     print("Making CSV started...")
-    tmp_output_dir = release_dir + "/CSV/Top 1000 Words in Gilaki.csv"
-    conn = sqlite3.connect(db_dir, isolation_level=None, detect_types=sqlite3.PARSE_COLNAMES)
+    tmp_output_dir = RELEASE_DIR + "/CSV/Top 1000 Words in Gilaki.csv"
+    conn = sqlite3.connect(DB_DIR, isolation_level=None, detect_types=sqlite3.PARSE_COLNAMES)
     db_df = pd.read_sql_query("SELECT * FROM tbl_words", conn)
     db_df.to_csv(tmp_output_dir, index=False)
     print("CSV made Successfully.")
@@ -134,8 +129,8 @@ def make_csv():
 
 def make_json():
     print("Making JSON started...")
-    tmp_min_output_dir = release_dir + "/JSON/Top 1000 Words in Gilaki.min.json"
-    conn = sqlite3.connect(db_dir)
+    tmp_min_output_dir = RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.min.json"
+    conn = sqlite3.connect(DB_DIR)
     conn.row_factory = sqlite3.Row
     db = conn.cursor()
     rows = db.execute("SELECT * from tbl_words").fetchall()
@@ -146,7 +141,7 @@ def make_json():
     f.write(js.decode())
     f.close()
     print("Minified JSON made Successfully.")
-    tmp_output_dir = release_dir + "/JSON/Top 1000 Words in Gilaki.json"
+    tmp_output_dir = RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.json"
     js = json.dumps([dict(ix) for ix in rows], indent=4, ensure_ascii=False).encode('utf8')
     f = open(tmp_output_dir, "w")
     f.write(js.decode())
@@ -156,14 +151,14 @@ def make_json():
 
 def update_docs():
     print("Updating docs...")
-    copyfile(release_dir + "/JSON/Top 1000 Words in Gilaki.min.json", release_dir + "/docs/Top 1000 Words in Gilaki.min.json")
+    copyfile(RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.min.json", RELEASE_DIR + "/docs/Top 1000 Words in Gilaki.min.json")
     print("docs updated Successfully.")
 
 
 def make_xml():
     print("Making XML started...")
     tmp_output_dir = "database.xml"
-    data = readfromjson(release_dir + "/JSON/Top 1000 Words in Gilaki.min.json")
+    data = readfromjson(RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.min.json")
     data = json2xml.Json2xml(data, wrapper="wordlist", pretty=True, attr_type=False).to_xml()
     data = data.replace("<item>", "<word>")
     data = data.replace("</item>", "</word>")
@@ -173,7 +168,7 @@ def make_xml():
     f.close()
     print("XML made Successfully.")
     print("Releasing XML...")
-    copyfile(tmp_output_dir, release_dir + "/XML/Top 1000 Words in Gilaki.xml")
+    copyfile(tmp_output_dir, RELEASE_DIR + "/XML/Top 1000 Words in Gilaki.xml")
     print("XML Released Successfully.")
     os.remove(tmp_output_dir)
 
@@ -183,7 +178,7 @@ def readtemplate(path : str) -> str:
     return f.read()
 
 
-def readdb(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+def readdb(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     print("Making HTML flashcards started...")
 
     word = readtemplate("./templates/word.html")
@@ -242,7 +237,7 @@ def crop_center(pil_img, crop_width, crop_height):
 
 
 def makejpg(typ):
-    for i in range(start_range, end_range, 1):
+    for i in range(START_RANGE, END_RANGE, 1):
         async def main():
             browser = await launch(headless=True, options={'args': ['--no-sandbox']})
             page = await browser.newPage()
@@ -289,7 +284,7 @@ def make_flash_jpg():
     files = glob.iglob(os.path.join("./TEMP/", "*.jpg"))
     for file in files:
         if os.path.isfile(file):
-            shutil.copy2(file, release_dir + "/Flash Card/")
+            shutil.copy2(file, RELEASE_DIR + "/Flash Card/")
     print("JPG flashcards Released Successfully.")
 
 
@@ -299,7 +294,7 @@ def make_gif():
     def makegif(num):
         os.system(f'convert -delay 200 -loop 0 ./TEMP/{num}-word.jpg ./TEMP/{num}-meaning.jpg ./TEMP/{num}-full.jpg ./TEMP/{num}-animation.gif')
 
-    for i in range(start_range, end_range, 1):
+    for i in range(START_RANGE, END_RANGE, 1):
         makegif(i)
 
     print("GIF flashcards made Successfully.")
@@ -307,7 +302,7 @@ def make_gif():
     files = glob.iglob(os.path.join("./TEMP/", "*.gif"))
     for file in files:
         if os.path.isfile(file):
-            shutil.copy2(file, release_dir + "/Flash Card/")
+            shutil.copy2(file, RELEASE_DIR + "/Flash Card/")
             os.remove(file)
     print("GIF flashcards Released Successfully.")
     files = glob.iglob(os.path.join("./TEMP/", "*.jpg"))
@@ -316,7 +311,7 @@ def make_gif():
             os.remove(file)
 
 
-def make_docx(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+def make_docx(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     print("Making DOCX started...")
 
     document = Document("./templates/database.docx")
@@ -390,17 +385,17 @@ def make_docx(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlit
             conn.close()
             print("DOCX made Successfully.")
 
-    document.save(release_dir + "/Word/Top 1000 Words in Gilaki.docx")
+    document.save(RELEASE_DIR + "/Word/Top 1000 Words in Gilaki.docx")
 
 
 def make_pdf():
     print("Making PDF started...")
-    tmp_dir = release_dir + "/Word/Top 1000 Words in Gilaki.docx"
-    os.system(f'libreoffice --headless --convert-to pdf --outdir "{release_dir}/PDF/" "{tmp_dir}"')
+    tmp_dir = RELEASE_DIR + "/Word/Top 1000 Words in Gilaki.docx"
+    os.system(f'libreoffice --headless --convert-to pdf --outdir "{RELEASE_DIR}/PDF/" "{tmp_dir}"')
     print("PDF made Successfully.")
 
 
-def make_xlsx(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+def make_xlsx(path : str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     print("Making Excel started...")
     sheet = pe.get_sheet(file_name="./templates/database.xlsx")
 
@@ -418,7 +413,7 @@ def make_xlsx(path : str = release_dir + "/SQLite/Top 1000 Words in Gilaki.sqlit
         cursor.close()
 
         sheet.rightToLeft = True
-        sheet.save_as(release_dir + "/Excel/Top 1000 Words in Gilaki.xlsx")
+        sheet.save_as(RELEASE_DIR + "/Excel/Top 1000 Words in Gilaki.xlsx")
 
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
@@ -435,14 +430,14 @@ def change_readme():
     d = datetime.now()
     current_time = d.strftime('%d, %b %Y')
     readme = readme.replace("{date}", f"{current_time}")
-    f = open(release_dir + "/README.md", "w")
+    f = open(RELEASE_DIR + "/README.md", "w")
     f.write(readme)
     f.close()
     print("README updated Successfully.")
 
 
 def push_release():
-    os.system(f'cd {release_dir} && git add . && git commit -m "fix typo" && git push')
+    os.system(f'cd {RELEASE_DIR} && git add . && git commit -m "fix typo" && git push')
 
 
 if __name__ == '__main__':
