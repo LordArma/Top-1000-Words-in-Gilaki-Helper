@@ -4,4 +4,5 @@ build/*
 cambrac.egg-info/*
 dist/*
 TEMP/*
+__pycache__/*
 Top-1000-Words-in-Gilaki
