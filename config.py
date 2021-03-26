@@ -6,3 +6,4 @@ END_RANGE = 1001
 
 if __name__ == '__main__':
     print("You can not run this file directly.")
+
