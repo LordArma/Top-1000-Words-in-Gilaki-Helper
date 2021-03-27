@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import sqlite3
 from shutil import copyfile
 import pandas as pd
@@ -15,10 +17,14 @@ from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_DIRECTION, WD_TABLE_ALIGNMENT
 import pyexcel as pe
+import csv
 from config import *
 
 
 def init():
+    if not os.path.exists('TEMP'):
+        os.makedirs('TEMP')
+
     if not os.path.exists(RELEASE_DIR):
         os.makedirs(RELEASE_DIR)
 
@@ -50,8 +56,8 @@ def init():
         os.makedirs(RELEASE_DIR + '/XML')
 
     copyfile("./templates/favicon.png", RELEASE_DIR + "/docs/favicon.png")
-    copyfile("./templates/index.html",  RELEASE_DIR + "/docs/index.html")
-    copyfile("./templates/LICENSE",  RELEASE_DIR + "/LICENSE")
+    copyfile("./templates/index.html", RELEASE_DIR + "/docs/index.html")
+    copyfile("./templates/LICENSE", RELEASE_DIR + "/LICENSE")
 
 
 def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
@@ -61,8 +67,9 @@ def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
         print("Connected to SQLite successfully .")
         print("Normalization started...")
         sqlite_update_query = "UPDATE tbl_words SET glk_word = trim(glk_word), glk_example = trim(glk_example), " \
-                              "fa_word = trim(fa_word), fa_example = trim(fa_example) "
-        count = cursor.execute(sqlite_update_query)
+                              "fa_word = trim(fa_word), fa_example = trim(fa_example), en_word = trim(en_word), " \
+                              "en_example = trim(en_example) "
+        cursor.execute(sqlite_update_query)
         conn.commit()
         print("Records striped successfully.", cursor.rowcount)
         cursor.close()
@@ -97,16 +104,20 @@ def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
             r2 = row[2]
             r3 = row[3]
             r4 = row[4]
+            r5 = row[5]
+            r6 = row[6]
             r1 = r1.replace("'", "ٰ")
             r2 = r2.replace("'", "ٰ")
             r3 = r3.replace("'", "ٰ")
             r4 = r4.replace("'", "ٰ")
+            r5 = r5.replace("'", "ٰ")
+            r6 = r6.replace("'", "ٰ")
             sqlite_insert_query = f"""INSERT INTO tbl_words
-                                      (id, glk_word, glk_example, fa_word, fa_example) 
+                                      (id, glk_word, glk_example, fa_word, fa_example, en_word, en_example) 
                                        VALUES 
-                                      ({i}, "{r1}", "{r2}", "{r3}", "{r4}")"""
+                                      ({i}, "{r1}", "{r2}", "{r3}", "{r4}", "{r5}", "{r6}")"""
 
-            count = cursor2.execute(sqlite_insert_query)
+            cursor2.execute(sqlite_insert_query)
             conn2.commit()
         cursor.close()
 
@@ -120,33 +131,80 @@ def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
 
 def make_csv():
     print("Making CSV started...")
-    tmp_output_dir = RELEASE_DIR + "/CSV/Top 1000 Words in Gilaki.csv"
-    conn = sqlite3.connect(DB_DIR, isolation_level=None, detect_types=sqlite3.PARSE_COLNAMES)
+
+    conn = sqlite3.connect(RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite", isolation_level=None,
+                           detect_types=sqlite3.PARSE_COLNAMES)
+
+    tmp_output_dir = RELEASE_DIR + "/CSV/Top 1000 Words in Gilaki (Full).csv"
     db_df = pd.read_sql_query("SELECT * FROM tbl_words", conn)
-    db_df.to_csv(tmp_output_dir, index=False)
+    db_df.to_csv(tmp_output_dir, index=False, quoting=csv.QUOTE_NONNUMERIC)
+
+    tmp_output_dir = RELEASE_DIR + "/CSV/Top 1000 Words in Gilaki (Farsi Only).csv"
+    db_df = pd.read_sql_query("SELECT id, glk_word, glk_example, fa_word, fa_example FROM tbl_words", conn)
+    db_df.to_csv(tmp_output_dir, index=False, quoting=csv.QUOTE_NONNUMERIC)
+
+    tmp_output_dir = RELEASE_DIR + "/CSV/Top 1000 Words in Gilaki (English Only).csv"
+    db_df = pd.read_sql_query("SELECT id, glk_word, glk_example, en_word, en_example FROM tbl_words", conn)
+    db_df.to_csv(tmp_output_dir, index=False, quoting=csv.QUOTE_NONNUMERIC)
+
     print("CSV made Successfully.")
 
 
 def make_json():
     print("Making JSON started...")
-    tmp_min_output_dir = RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.min.json"
-    conn = sqlite3.connect(DB_DIR)
+
+    conn = sqlite3.connect(RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite")
     conn.row_factory = sqlite3.Row
     db = conn.cursor()
     rows = db.execute("SELECT * from tbl_words").fetchall()
     conn.commit()
     conn.close()
     js = json.dumps([dict(ix) for ix in rows], ensure_ascii=False).encode('utf8')
+    tmp_min_output_dir = RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.min.json"
     f = open(tmp_min_output_dir, "w")
     f.write(js.decode())
     f.close()
-    print("Minified JSON made Successfully.")
     tmp_output_dir = RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.json"
     js = json.dumps([dict(ix) for ix in rows], indent=4, ensure_ascii=False).encode('utf8')
     f = open(tmp_output_dir, "w")
     f.write(js.decode())
     f.close()
-    print("Beautified JSON made Successfully.")
+
+    conn = sqlite3.connect(RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite")
+    conn.row_factory = sqlite3.Row
+    db = conn.cursor()
+    rows = db.execute("SELECT id, glk_word, glk_example, fa_word, fa_example from tbl_words").fetchall()
+    conn.commit()
+    conn.close()
+    js = json.dumps([dict(ix) for ix in rows], ensure_ascii=False).encode('utf8')
+    tmp_min_output_dir = RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki (Farsi Only).min.json"
+    f = open(tmp_min_output_dir, "w")
+    f.write(js.decode())
+    f.close()
+    tmp_output_dir = RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki (Farsi Only).json"
+    js = json.dumps([dict(ix) for ix in rows], indent=4, ensure_ascii=False).encode('utf8')
+    f = open(tmp_output_dir, "w")
+    f.write(js.decode())
+    f.close()
+
+    conn = sqlite3.connect(RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite")
+    conn.row_factory = sqlite3.Row
+    db = conn.cursor()
+    rows = db.execute("SELECT id, glk_word, glk_example, en_word, en_example from tbl_words").fetchall()
+    conn.commit()
+    conn.close()
+    js = json.dumps([dict(ix) for ix in rows], ensure_ascii=False).encode('utf8')
+    tmp_min_output_dir = RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki (English Only).min.json"
+    f = open(tmp_min_output_dir, "w")
+    f.write(js.decode())
+    f.close()
+    tmp_output_dir = RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki (English Only).json"
+    js = json.dumps([dict(ix) for ix in rows], indent=4, ensure_ascii=False).encode('utf8')
+    f = open(tmp_output_dir, "w")
+    f.write(js.decode())
+    f.close()
+
+    print("JSON made Successfully.")
 
 
 def update_docs():
@@ -158,7 +216,8 @@ def update_docs():
 
 def make_xml():
     print("Making XML started...")
-    tmp_output_dir = "database.xml"
+
+    tmp_output_dir = RELEASE_DIR + "/XML/Top 1000 Words in Gilaki.xml"
     data = readfromjson(RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki.min.json")
     data = json2xml.Json2xml(data, wrapper="wordlist", pretty=True, attr_type=False).to_xml()
     data = data.replace("<item>", "<word>")
@@ -167,11 +226,28 @@ def make_xml():
     f = open(tmp_output_dir, "w")
     f.write(data)
     f.close()
+
+    tmp_output_dir = RELEASE_DIR + "/XML/Top 1000 Words in Gilaki (Farsi Only).xml"
+    data = readfromjson(RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki (Farsi Only).min.json")
+    data = json2xml.Json2xml(data, wrapper="wordlist", pretty=True, attr_type=False).to_xml()
+    data = data.replace("<item>", "<word>")
+    data = data.replace("</item>", "</word>")
+    data = data.replace('<?xml version="1.0" ?>', '<?xml version="1.0" encoding="UTF-8"?>')
+    f = open(tmp_output_dir, "w")
+    f.write(data)
+    f.close()
+
+    tmp_output_dir = RELEASE_DIR + "/XML/Top 1000 Words in Gilaki (English Only).xml"
+    data = readfromjson(RELEASE_DIR + "/JSON/Top 1000 Words in Gilaki (English Only).min.json")
+    data = json2xml.Json2xml(data, wrapper="wordlist", pretty=True, attr_type=False).to_xml()
+    data = data.replace("<item>", "<word>")
+    data = data.replace("</item>", "</word>")
+    data = data.replace('<?xml version="1.0" ?>', '<?xml version="1.0" encoding="UTF-8"?>')
+    f = open(tmp_output_dir, "w")
+    f.write(data)
+    f.close()
+
     print("XML made Successfully.")
-    print("Releasing XML...")
-    copyfile(tmp_output_dir, RELEASE_DIR + "/XML/Top 1000 Words in Gilaki.xml")
-    print("XML Released Successfully.")
-    os.remove(tmp_output_dir)
 
 
 def readtemplate(path: str) -> str:
@@ -179,12 +255,13 @@ def readtemplate(path: str) -> str:
     return f.read()
 
 
-def readdb(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+def make_flash_html(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
     print("Making HTML flashcards started...")
 
     word = readtemplate("./templates/word.html")
     meaning = readtemplate("./templates/meaning.html")
-    full = readtemplate("./templates/full.html")
+    full = readtemplate("./templates/full_fa.html")
+    full_en = readtemplate("./templates/full_en.html")
 
     try:
         conn = sqlite3.connect(path)
@@ -216,8 +293,23 @@ def readdb(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
             txt += row[2] + "\n"
             flash = flash.replace("{fa_example}", row[4])
             txt += row[4] + "\n"
-            createflash(f"{row[0]}-full.html", flash)
+            createflash(f"{row[0]}-full-fa.html", flash)
+            txt += row[5] + "\n"
+            txt += row[6] + "\n"
             createinfo(f"{row[0]}.txt", txt)
+
+        for row in records:
+            txt = ""
+            flash = full_en
+            flash = flash.replace("{glk_word}", row[1])
+            txt += row[1] + "\n"
+            flash = flash.replace("{en_word}", row[5])
+            txt += row[3] + "\n"
+            flash = flash.replace("{glk_example}", row[2])
+            txt += row[2] + "\n"
+            flash = flash.replace("{en_example}", row[6])
+            txt += row[4] + "\n"
+            createflash(f"{row[0]}-full-en.html", flash)
 
         cursor.close()
 
@@ -269,19 +361,16 @@ def createinfo(name, text):
     f.close()
 
 
-def make_flash_html():
-    readdb()
-
-
 def make_flash_jpg():
     print("Making JPG flashcards started...")
-    print("Making JPG word flashcards started...")
+
     makejpg("word")
-    print("Making JPG meaning flashcards started...")
     makejpg("meaning")
-    print("Making JPG full flashcards started...")
-    makejpg("full")
+    makejpg("full-fa")
+    makejpg("full-en")
+
     print("JPG flashcards made Successfully.")
+
     print("Releasing JPG flashcards...")
     files = glob.iglob(os.path.join("./TEMP/", "*.jpg"))
     for file in files:
@@ -290,32 +379,33 @@ def make_flash_jpg():
     print("JPG flashcards Released Successfully.")
 
 
-def make_gif():
-    print("Making GIF flashcards started...")
+def make_gif(lang_code: str):
+    print(f"Making {lang_code} GIF flashcards started...")
 
     def makegif(num):
-        os.system(f'convert -delay 200 -loop 0 ./TEMP/{num}-word.jpg ./TEMP/{num}-meaning.jpg ./TEMP/{num}-full.jpg '
-                  f'./TEMP/{num}-animation.gif')
+        os.system(f'convert -delay 200 -loop 0 ./TEMP/{num}-word.jpg ./TEMP/{num}-meaning.jpg ./TEMP/{num}-full-{lang_code}.jpg ./TEMP/{num}-animation-{lang_code}.gif')
 
     for i in range(START_RANGE, END_RANGE, 1):
         makegif(i)
 
-    print("GIF flashcards made Successfully.")
-    print("Releasing GIF flashcards...")
+    print(f"{lang_code} GIF flashcards made Successfully.")
+    print(f"Releasing {lang_code} GIF flashcards...")
     files = glob.iglob(os.path.join("./TEMP/", "*.gif"))
     for file in files:
         if os.path.isfile(file):
             shutil.copy2(file, RELEASE_DIR + "/Flash Card/")
             os.remove(file)
-    print("GIF flashcards Released Successfully.")
-    files = glob.iglob(os.path.join("./TEMP/", "*.jpg"))
-    for file in files:
-        if os.path.isfile(file):
-            os.remove(file)
+    print(f"{lang_code} GIF flashcards Released Successfully.")
 
 
-def make_docx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
-    print("Making DOCX started...")
+def make_docx(lang_code: str = "fa", path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+
+    language_name = "Farsi"
+
+    if lang_code == "en":
+        language_name = "English"
+
+    print(f"Making {language_name} DOCX started...")
 
     document = Document("./templates/database.docx")
     table = document.tables[0]
@@ -325,22 +415,34 @@ def make_docx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
     row = table.rows[0].cells
 
     row[0].text = ''
-    row[0].paragraphs[0].add_run('Farsi Example').bold = True
+    if lang_code == "fa":
+        row[0].paragraphs[0].add_run(f'مثال فارسی').bold = True
+    if lang_code == "en":
+        row[0].paragraphs[0].add_run(f'{language_name} Example').bold = True
     row[0].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     row[0].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
 
     row[1].text = ''
-    row[1].paragraphs[0].add_run('Farsi Word').bold = True
+    if lang_code == "fa":
+        row[1].paragraphs[0].add_run(f'کلمه فارسی').bold = True
+    if lang_code == "en":
+        row[1].paragraphs[0].add_run(f'{language_name} Word').bold = True
     row[1].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     row[1].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
 
     row[2].text = ''
-    row[2].paragraphs[0].add_run('Gilaki Example').bold = True
+    if lang_code == "fa":
+        row[2].paragraphs[0].add_run('مثال گیلکی').bold = True
+    if lang_code == "en":
+        row[2].paragraphs[0].add_run('Gilaki Example').bold = True
     row[2].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     row[2].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
 
     row[3].text = ''
-    row[3].paragraphs[0].add_run('Gilaki Word').bold = True
+    if lang_code == "fa":
+        row[3].paragraphs[0].add_run('کلمه گیلکی').bold = True
+    if lang_code == "en":
+        row[3].paragraphs[0].add_run('Gilaki Word').bold = True
     row[3].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     row[3].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
 
@@ -348,7 +450,7 @@ def make_docx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
         conn = sqlite3.connect(path)
         cursor = conn.cursor()
 
-        sqlite_select_query = "SELECT * from tbl_words"
+        sqlite_select_query = f"SELECT id, glk_word, glk_example, {lang_code}_word, {lang_code}_example from tbl_words"
         cursor.execute(sqlite_select_query)
         records = cursor.fetchall()
 
@@ -386,27 +488,40 @@ def make_docx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
     finally:
         if (conn):
             conn.close()
-            print("DOCX made Successfully.")
+            print(f"{language_name} DOCX made Successfully.")
 
-    document.save(RELEASE_DIR + "/Word/Top 1000 Words in Gilaki.docx")
+    document.save(RELEASE_DIR + f"/Word/Top 1000 Words in Gilaki ({language_name}).docx")
 
 
-def make_pdf():
-    print("Making PDF started...")
-    tmp_dir = RELEASE_DIR + "/Word/Top 1000 Words in Gilaki.docx"
+def make_pdf(lang_code: str = "fa"):
+    language_name = "Farsi"
+
+    if lang_code == "en":
+        language_name = "English"
+
+    print(f"Making {language_name} PDF started...")
+
+    tmp_dir = RELEASE_DIR + f"/Word/Top 1000 Words in Gilaki ({language_name}).docx"
     os.system(f'libreoffice --headless --convert-to pdf --outdir "{RELEASE_DIR}/PDF/" "{tmp_dir}"')
-    print("PDF made Successfully.")
+
+    print(f"{language_name} PDF made Successfully.")
 
 
-def make_xlsx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
-    print("Making Excel started...")
-    sheet = pe.get_sheet(file_name="./templates/database.xlsx")
+def make_xlsx(lang_code: str = "fa", path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
+    language_name = "Farsi"
+
+    if lang_code == "en":
+        language_name = "English"
+
+    print(f"Making {language_name} Excel started...")
+
+    sheet = pe.get_sheet(file_name=f"./templates/database{lang_code}.xlsx")
 
     try:
         conn = sqlite3.connect(path)
         cursor = conn.cursor()
 
-        sqlite_select_query = "SELECT * from tbl_words"
+        sqlite_select_query = f"SELECT id, glk_word, glk_example, {lang_code}_word, {lang_code}_example from tbl_words"
         cursor.execute(sqlite_select_query)
         records = cursor.fetchall()
 
@@ -416,7 +531,7 @@ def make_xlsx(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
         cursor.close()
 
         sheet.rightToLeft = True
-        sheet.save_as(RELEASE_DIR + "/Excel/Top 1000 Words in Gilaki.xlsx")
+        sheet.save_as(RELEASE_DIR + f"/Excel/Top 1000 Words in Gilaki ({language_name}).xlsx")
 
     except sqlite3.Error as error:
         print("Failed to read data from sqlite table", error)
@@ -440,7 +555,7 @@ def change_readme():
 
 
 def push_release():
-    os.system(f'cd {RELEASE_DIR} && git add . && git commit -m "fix typo" && git push')
+    os.system(f'cd {RELEASE_DIR} && git add . && git commit -m "{COMMIT_MESSAGE}" && git push')
 
 
 if __name__ == '__main__':
@@ -450,11 +565,15 @@ if __name__ == '__main__':
     make_json()
     update_docs()
     make_xml()
+    make_docx("fa")
+    make_docx("en")
+    make_pdf("fa")
+    make_pdf("en")
+    make_xlsx("fa")
+    make_xlsx("en")
     make_flash_html()
     make_flash_jpg()
-    make_gif()
-    make_docx()
-    make_pdf()
-    make_xlsx()
+    make_gif("fa")
+    make_gif("en")
     change_readme()
     push_release()
