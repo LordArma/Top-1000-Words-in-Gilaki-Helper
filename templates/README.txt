@@ -4,12 +4,9 @@ You can also search in this list without download anything here: [Top 1000 Words
 <br/>
 <br/>
 Another project base on this list is ["Gilaki Word" page on Instagram](https://instagram.com/gilakiword).
-<br/>
-<br/>
-You may want to watch [Introducing "Top 1000 Words in Gilaki" project in English in Youtube](https://www.youtube.com/watch?v=MW1o3a_anTY&ab_channel=AlirezaAhmadi).
 
 ## Last Update
-{date}
+Updated to version {version} in {date}.
 
 ## Generate Your Own List?
 You can easily visit [Top 1000 Words in Gilaki Helper](https://github.com/LordArma/Top-1000-Words-in-Gilaki-Helper) project and generate your own top N words in any language!

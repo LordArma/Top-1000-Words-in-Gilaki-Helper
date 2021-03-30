@@ -5,7 +5,8 @@ DB_DIR = 'words.db'
 RELEASE_DIR = "./" + PROJECT_NAME.replace(" ", "-")
 START_RANGE = 1
 END_RANGE = 1001
-COMMIT_MESSAGE = "fix typo"
+VERSION = "2.0.0"
+COMMIT_MESSAGE = "fix typo " + VERSION
 
 if __name__ == '__main__':
     print("You can not run this file directly.")

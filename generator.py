@@ -418,7 +418,7 @@ def make_docx(lang_code: str = "fa", path: str = RELEASE_DIR + "/SQLite/Top 1000
     if lang_code == "fa":
         row[0].paragraphs[0].add_run(f'مثال فارسی').bold = True
     if lang_code == "en":
-        row[0].paragraphs[0].add_run(f'{language_name} Example').bold = True
+        row[0].paragraphs[0].add_run(f'English Example').bold = True
     row[0].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     row[0].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
 
@@ -426,7 +426,7 @@ def make_docx(lang_code: str = "fa", path: str = RELEASE_DIR + "/SQLite/Top 1000
     if lang_code == "fa":
         row[1].paragraphs[0].add_run(f'کلمه فارسی').bold = True
     if lang_code == "en":
-        row[1].paragraphs[0].add_run(f'{language_name} Word').bold = True
+        row[1].paragraphs[0].add_run(f'English Word').bold = True
     row[1].paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
     row[1].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
 
@@ -548,6 +548,7 @@ def change_readme():
     d = datetime.now()
     current_time = d.strftime('%d, %b %Y')
     readme = readme.replace("{date}", f"{current_time}")
+    readme = readme.replace("{version}", f"{VERSION}")
     f = open(RELEASE_DIR + "/README.md", "w")
     f.write(readme)
     f.close()
