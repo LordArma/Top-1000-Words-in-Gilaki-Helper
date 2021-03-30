@@ -383,7 +383,8 @@ def make_gif(lang_code: str):
     print(f"Making {lang_code} GIF flashcards started...")
 
     def makegif(num):
-        os.system(f'convert -delay 200 -loop 0 ./TEMP/{num}-word.jpg ./TEMP/{num}-meaning.jpg ./TEMP/{num}-full-{lang_code}.jpg ./TEMP/{num}-animation-{lang_code}.gif')
+        os.system(
+            f'convert -delay 200 -loop 0 ./TEMP/{num}-word.jpg ./TEMP/{num}-meaning.jpg ./TEMP/{num}-full-{lang_code}.jpg ./TEMP/{num}-animation-{lang_code}.gif')
 
     for i in range(START_RANGE, END_RANGE, 1):
         makegif(i)
@@ -399,7 +400,6 @@ def make_gif(lang_code: str):
 
 
 def make_docx(lang_code: str = "fa", path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite"):
-
     language_name = "Farsi"
 
     if lang_code == "en":
