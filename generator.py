@@ -100,18 +100,20 @@ def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
         for row in records:
             i += 1
             cursor2 = conn2.cursor()
-            r1 = row[1]
-            r2 = row[2]
-            r3 = row[3]
-            r4 = row[4]
-            r5 = row[5]
-            r6 = row[6]
+            r1 = row[1]  # glk_word
+            r2 = row[2]  # glk_example
+            r3 = row[3]  # fa_word
+            r4 = row[4]  # fa_example
+            r5 = row[5]  # en_word
+            r6 = row[6]  # en_example
             r1 = r1.replace("'", "ٰ")
             r2 = r2.replace("'", "ٰ")
             r3 = r3.replace("'", "ٰ")
+            r3 = r3.replace("ي", "ی")
             r4 = r4.replace("'", "ٰ")
-            r5 = r5.replace("'", "ٰ")
-            r6 = r6.replace("'", "ٰ")
+            r4 = r4.replace("ي", "ی")
+            r5 = r5.replace("ٰ", "'")
+            r6 = r6.replace("ٰ", "'")
             sqlite_insert_query = f"""INSERT INTO tbl_words
                                       (id, glk_word, glk_example, fa_word, fa_example, en_word, en_example) 
                                        VALUES 

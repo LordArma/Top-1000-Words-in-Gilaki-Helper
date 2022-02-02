@@ -1,9 +1,12 @@
 # Top 1000 Words in Gilaki
 Top 1000 words in Gilaki with English & Farsi translation. You can download them as JSON, XML, SQLite and so many more formats.
-You can also search in this list without download anything here: [Top 1000 Words in Gilaki](https://lordarma.github.io/Top-1000-Words-in-Gilaki).
+You can also search in this list without download anything here: [Top 1000 Words in Gilaki](https://Gil1000.ir).
 <br/>
 <br/>
 Another project base on this list is ["Gilaki Word" page on Instagram](https://instagram.com/gilakiword).
+
+## Something is Wrong
+If you found that something is wrong, please open an issue. For example if you think some meanings are wrong or there are some mistakes, please open an issue for each word.
 
 ## Last Update
 Updated to version {version} in {date}.
@@ -15,19 +18,6 @@ You can easily visit [Top 1000 Words in Gilaki Helper](https://github.com/LordAr
 Do you like this project? You can donate Bitcoins here:
 <br/>
 bc1qx7arvae99jv0s2qnaf3v9qaxr6f22p4cpwuaph
-
-## Maybe You Like
-[C++ Dilami Calendar](https://github.com/LordArma/Dilami-Calendar-C-)
-<br/>
-[Python Dilami Calendar](https://github.com/Jangal/python-dilami-calendar)
-<br/>
-[.Net Dilami Calendar](https://github.com/Jangal/Dilami-Calendar-.Net)
-<br/>
-[Arduino Dilami Calendar](https://github.com/LordArma/Dilami-Calendar-Arduino)
-<br/>
-[Gilaki Keyboard](https://gilakikeyboard.ir)
-<br/>
-[Dilami Calendar](https://giltime.ir)
 
 ## Contributors
 [Arma](https://github.com/LordArma)
