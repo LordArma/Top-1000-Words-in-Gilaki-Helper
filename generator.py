@@ -558,7 +558,7 @@ def change_readme():
 
 
 def push_release():
-    os.system(f'cd {RELEASE_DIR} && git add . && git commit -m "{COMMIT_MESSAGE}" && git push')
+    os.system(f'cd {RELEASE_DIR} && git add . && git commit -m "{COMMIT_MESSAGE}" && git push --force')
 
 
 if __name__ == '__main__':
