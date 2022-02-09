@@ -92,7 +92,48 @@ def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
         conn = sqlite3.connect(DB_DIR)
         cursor = conn.cursor()
 
-        sqlite_select_query = "SELECT * from tbl_words order by glk_word"
+        sqlite_select_query = '''SELECT * FROM tbl_words ORDER BY case 
+        when glk_word like 'آ%' then 0
+        when glk_word like 'ا%' then 1
+        when glk_word like 'أ%' then 2
+        when glk_word like 'ب%' then 3
+        when glk_word like 'پ%' then 4
+        when glk_word like 'ت%' then 5
+        when glk_word like 'ث%' then 6
+        when glk_word like 'ج%' then 7
+        when glk_word like 'چ%' then 8
+        when glk_word like 'ح%' then 9
+        when glk_word like 'خ%' then 10
+        when glk_word like 'د%' then 11
+        when glk_word like 'ذ%' then 12
+        when glk_word like 'ر%' then 13
+        when glk_word like 'ز%' then 14
+        when glk_word like 'ژ%' then 15
+        when glk_word like 'س%' then 16
+        when glk_word like 'ش%' then 17
+        when glk_word like 'ص%' then 18
+        when glk_word like 'ض%' then 19
+        when glk_word like 'ط%' then 20
+        when glk_word like 'ظ%' then 21
+        when glk_word like 'ع%' then 22
+        when glk_word like 'غ%' then 23
+        when glk_word like 'ف%' then 24
+        when glk_word like 'ق%' then 25
+        when glk_word like 'ک%' then 26
+        when glk_word like 'گ%' then 27
+        when glk_word like 'ل%' then 28
+        when glk_word like 'م%' then 29
+        when glk_word like 'ن%' then 30
+        when glk_word like 'و%' then 31
+        when glk_word like 'ؤ%' then 32
+        when glk_word like 'ۊ%' then 33
+        when glk_word like 'ه%' then 34
+        when glk_word like 'ی%' then 35
+        when glk_word like 'ي%' then 36
+        when glk_word like 'ئ%' then 37
+        else 38
+        end asc, glk_word asc;'''
+
         cursor.execute(sqlite_select_query)
         records = cursor.fetchall()
 
