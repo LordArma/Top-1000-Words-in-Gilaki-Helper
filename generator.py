@@ -57,6 +57,7 @@ def init():
 
     copyfile("./templates/favicon.png", RELEASE_DIR + "/docs/favicon.png")
     copyfile("./templates/index.html", RELEASE_DIR + "/docs/index.html")
+    copyfile("./templates/CNAME", RELEASE_DIR + "/docs/CNAME")
     copyfile("./templates/LICENSE", RELEASE_DIR + "/LICENSE")
 
 
