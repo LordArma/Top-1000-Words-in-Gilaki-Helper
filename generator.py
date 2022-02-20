@@ -153,13 +153,22 @@ def normalize(path: str = RELEASE_DIR + "/SQLite/Top 1000 Words in Gilaki.sqlite
             r1 = r1.replace("'", "ٰ")
             r1 = r1.replace("ٰ", " ٰ")
             r1 = r1.replace("ˇ", " ٚ")
+            r1 = r1.replace("...", "…")
 
             r2 = r2.replace("'", "ٰ")
             r2 = r2.replace("ٰ", " ٰ")
             r2 = r2.replace("ˇ", " ٚ")
+            r2 = r2.replace("...", "…")
 
             r3 = r3.replace("ي", "ی")
+            r3 = r3.replace("...", "…")
+
             r4 = r4.replace("ي", "ی")
+            r4 = r4.replace("...", "…")
+
+            r5 = r5.replace("...", "…")
+
+            r6 = r6.replace("...", "…")
 
             sqlite_insert_query = f"""INSERT INTO tbl_words
                                       (id, glk_word, glk_example, fa_word, fa_example, en_word, en_example) 
