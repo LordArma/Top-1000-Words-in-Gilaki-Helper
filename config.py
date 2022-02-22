@@ -5,7 +5,7 @@ DB_DIR = 'words.db'
 RELEASE_DIR = "./" + PROJECT_NAME.replace(" ", "-")
 START_RANGE = 1
 END_RANGE = 1001
-VERSION = "3.3.0"
+VERSION = "3.3.1"
 COMMIT_MESSAGE = "English words added " + VERSION
 
 if __name__ == '__main__':
